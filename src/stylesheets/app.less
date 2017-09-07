@@ -3,10 +3,6 @@
 
 // utilitites
 
-.debug * {
-  outline: 1px dashed red;
-}
-
 .layer {
   position: absolute;
   top: 0;
@@ -23,19 +19,23 @@
 // layout
 
 #menu {
-  background-color: red;
+  background-color: silver;
   z-index: 1;
   top: auto;
-  height: 400px;
+  height: @sidebar-size;
+
+  ~ #map {
+    transform: translate3d(0, -(@sidebar-size / 3), 0);
+  }
 
   @media screen and (min-width: @md-width) {
     top: 0;
     left: auto;
-    width: 400px;
+    width: @sidebar-size;
     height: 100%;
-  }
-}
 
-#map {
-  background-color: cyan;
+    ~ #map {
+      transform: translate3d(-(@sidebar-size / 2), 0, 0);
+    }
+  }
 }
