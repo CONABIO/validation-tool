@@ -1,0 +1,52 @@
+{
+  "name": "validation-tool",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "tarima -des"
+  },
+  "tarima": {
+    "src": "src",
+    "public": "build",
+    "filter": [
+      "!_*",
+      "!**/_*",
+      "!**/_*/**"
+    ],
+    "bundle": [
+      "**/index.js"
+    ],
+    "rename": [
+      "**:{fullpath/2}",
+      "**/index.js:{basedir}.js"
+    ],
+    "ignoreFiles": [
+      ".gitignore"
+    ],
+    "devPlugins": [
+      "tarima-lr"
+    ],
+    "pluginOptions": {
+      "tarima-lr": {
+        "timeout": 1000
+      }
+    },
+    "bundleOptions": {
+      "extensions": {
+        "js": "es6",
+        "css": "less"
+      }
+    }
+  },
+  "optionalDependencies": {
+    "chokidar": "^1.7.0",
+    "tarima-lr": "^0.3.2"
+  },
+  "devDependencies": {
+    "buble": "^0.15.2",
+    "less": "^2.7.2",
+    "pug": "^2.0.0-rc.4",
+    "ractive": "^0.9.3",
+    "rollup": "^0.49.2",
+    "tarima": "^3.7.3"
+  }
+}

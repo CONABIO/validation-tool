@@ -1,0 +1,41 @@
+@import '_config';
+@import '_reset';
+
+// utilitites
+
+.debug * {
+  outline: 1px dashed red;
+}
+
+.layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.container {
+  height: 100%;
+  position: relative;
+}
+
+// layout
+
+#menu {
+  background-color: red;
+  z-index: 1;
+  top: auto;
+  height: 400px;
+
+  @media screen and (min-width: @md-width) {
+    top: 0;
+    left: auto;
+    width: 400px;
+    height: 100%;
+  }
+}
+
+#map {
+  background-color: cyan;
+}

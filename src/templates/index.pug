@@ -1,0 +1,24 @@
+- var debug = true
+
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(content='IE=edge,chrome=1' http-equiv='X-UA-Compatible')
+    meta(content='width=device-width, user-scalable=no' name='viewport')
+    script(src='//cdn.polyfill.io/v2/polyfill.min.js?features=fetch')
+    link(rel='stylesheet' href='//openlayers.org/en/v3.18.2/css/ol.css')
+
+    <$includeTag "app.css">
+
+    title Validation Tool
+
+  body(class=debug ? 'debug' : null)
+    .container
+      #menu.layer
+      #map.layer
+
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ractive/0.8.0/ractive.runtime.min.js')
+    script(src='//openlayers.org/en/v3.18.2/build/ol.js')
+
+    <$includeTag "app.js">
