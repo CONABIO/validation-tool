@@ -13,7 +13,7 @@
       "!**/_*/**"
     ],
     "bundle": [
-      "**/index.js"
+      "**/app.js"
     ],
     "rename": [
       "**:{fullpath/2}",
