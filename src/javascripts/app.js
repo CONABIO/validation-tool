@@ -11,8 +11,8 @@ const map = new ol.Map({
   layers: [mapLayer],
   target: document.getElementById('map'),
   view: new ol.View({
-    center: latLng([-99.133209, 19.432608]),
-    zoom: 5,
+    center: latLng([-102.38705181291395, 23.572312362011846]),
+    zoom: 16,
     minZoom: 5,
   }),
 });
@@ -102,4 +102,26 @@ getJSON(`/layers?features=${featureIds}`)
     result.features.forEach(data => {
       vectorSource.addFeatures(featureFor(data));
     });
+
+    const centroidsByFeature = result.features.map(calculateCentroidFeature);
+    const centroidByCluster = calculateCentroid(centroidsByFeature);
+
+    map.getView().setCenter(latLng(centroidByCluster));
+
+    console.log(centroidByCluster);
   })
+
+
+function calculateCentroidFeature(feature) {
+  return calculateCentroid(feature.geometry.coordinates[0][0]);
+}
+
+function calculateCentroid(coords) {
+  var longitude = 0;
+  var latitude = 0;
+  for(var i=0; i < coords.length; i++) {
+    longitude += coords[i][0];
+    latitude += coords[i][1];
+  }
+  return [longitude / coords.length, latitude / coords.length];
+}
