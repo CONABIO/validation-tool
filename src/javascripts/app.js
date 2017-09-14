@@ -11,7 +11,7 @@ const map = new ol.Map({
   layers: [mapLayer],
   target: document.getElementById('map'),
   view: new ol.View({
-    center: latLng([-102.38705181291395, 23.572312362011846]),
+    center: latLng([-99.133209, 19.432608]),
     zoom: 16,
     minZoom: 5,
   }),
@@ -45,64 +45,27 @@ const app = new Ractive({
   },
 });
 
-// mocked data -- update with API
-const data = [
-    {
-        "cluster_id": "14659",
-        "edited": false,
-        "features": [
-            {
-                "geoserver_id": 147231,
-                "postgres_id": "7287_1349926_32"
-            },
-            {
-                "geoserver_id": 147230,
-                "postgres_id": "7226_1349926_32"
-            },
-            {
-                "geoserver_id": 147229,
-                "postgres_id": "7070_1349926_32"
-            },
-            {
-                "geoserver_id": 147228,
-                "postgres_id": "7033_1349926_32"
-            },
-            {
-                "geoserver_id": 147227,
-                "postgres_id": "6982_1349926_32"
-            },
-            {
-                "geoserver_id": 147226,
-                "postgres_id": "6937_1349926_32"
-            },
-            {
-                "geoserver_id": 147225,
-                "postgres_id": "6924_1349926_32"
-            },
-            {
-                "geoserver_id": 147224,
-                "postgres_id": "6739_1349926_32"
-            },
-            {
-                "geoserver_id": 147223,
-                "postgres_id": "6999_1349926_32"
-            }
-        ]
-    }
-];
+// TODO: improve this shit...
+const randomId = Math.round(Math.random() * 15000 + 1);
 
-app.set('isEdited', data[0].edited);
-app.set('features', data[0].features);
+getJSON(`/clusters?clusterId=${randomId}`)
+  .then(data => {
+    app.set('isEdited', data[0].edited);
+    app.set('features', data[0].features);
 
-const featureIds = data[0].features.map(f => f.geoserver_id).join(',');
+    const featureIds = data[0].features.map(f => f.geoserver_id).join(',');
 
-getJSON(`/layers?features=${featureIds}`)
-  .then(result => {
-    vectorSource.clear();
+    return getJSON(`/layers?features=${featureIds}`)
+      .then(result => {
+        vectorSource.clear();
 
-    result.features.forEach(data => {
-      vectorSource.addFeatures(featureFor(data));
-    });
+        result.features.forEach(data => {
+          vectorSource.addFeatures(featureFor(data));
+        });
 
-    map.getView().setCenter(centroidFor(result.features));
+        map.getView().setCenter(centroidFor(result.features));
+      });
   })
+  .catch(e => {
+    console.log(e);
+  });

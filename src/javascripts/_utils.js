@@ -105,7 +105,7 @@ function calculateCentroid(coords) {
 
 export function centroidFor(feature) {
   const centroidsByFeature = (!Array.isArray(feature) ? [feature] : feature)
-    .map(x => calculateCentroid(feature.geometry.coordinates[0][0]));
+    .map(x => calculateCentroid(x.geometry.coordinates[0][0]));
 
   return latLng(calculateCentroid(centroidsByFeature));
 }

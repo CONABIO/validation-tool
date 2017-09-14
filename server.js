@@ -14,7 +14,7 @@ function getLayers(conn) {
     : [];
 
   const url = `http://webportal.conabio.gob.mx:8085/geoserver/validation-tool/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=validation-tool:sample&featureID=${
-    featureIds.map(f => `sample.${f}`).join(',')
+    featureIds.map(f => `sample.${f.replace('sample.', '')}`).join(',')
   }&outputFormat=application/json`;
 
   if (CACHED[url]) {
