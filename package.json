@@ -2,7 +2,7 @@
   "name": "validation-tool",
   "version": "0.0.0",
   "scripts": {
-    "dev": "tarima -des"
+    "dev": "tarima -des -P localhost:8081"
   },
   "tarima": {
     "src": "src",
@@ -48,5 +48,9 @@
     "ractive": "^0.9.3",
     "rollup": "^0.49.2",
     "tarima": "^3.7.3"
+  },
+  "dependencies": {
+    "grown": "^0.7.10",
+    "req-fast": "^0.2.17"
   }
 }

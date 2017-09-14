@@ -1,5 +1,24 @@
 /* global ol */
 
+const DEFAULT_STYLES = new ol.style.Style({
+  stroke: new ol.style.Stroke({
+    color: 'rgba(0, 100, 120, 0.5)',
+    lineDash: [4],
+    width: 1,
+  }),
+  fill: new ol.style.Fill({
+    color: 'rgba(0, 100, 120, 0.2)',
+  }),
+});
+
+// default styles for location polygons
+export const STYLES = {
+  Polygon: DEFAULT_STYLES,
+  MultiPolygon: DEFAULT_STYLES,
+  GeometryCollection: DEFAULT_STYLES,
+};
+
+
 function geojsonObject(location, transform) {
   const _geometry = {
     type: location.geometry.type,
@@ -67,4 +86,9 @@ export function closestElement(node, className) {
   } while (node.parentNode);
 }
 
-export default { featureFor, closestElement };
+export function getJSON(url, opts) {
+  return fetch(url, opts)
+    .then(res => res.json());
+}
+
+export default { STYLES, featureFor, closestElement, latLng, getJSON };
