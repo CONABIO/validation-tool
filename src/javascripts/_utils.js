@@ -11,13 +11,11 @@ const DEFAULT_STYLES = new ol.style.Style({
   }),
 });
 
-// default styles for location polygons
-export const STYLES = {
+const STYLES = {
   Polygon: DEFAULT_STYLES,
   MultiPolygon: DEFAULT_STYLES,
   GeometryCollection: DEFAULT_STYLES,
 };
-
 
 function geojsonObject(location, transform) {
   const _geometry = {
@@ -91,4 +89,8 @@ export function getJSON(url, opts) {
     .then(res => res.json());
 }
 
-export default { STYLES, featureFor, closestElement, latLng, getJSON };
+export function styleFor(feature) {
+  return STYLES[feature.getGeometry().getType()];
+}
+
+export default { styleFor, featureFor, closestElement, latLng, getJSON };

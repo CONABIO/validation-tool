@@ -1,4 +1,4 @@
-import { STYLES, featureFor, latLng, getJSON } from './_utils.js';
+import { styleFor, featureFor, latLng, getJSON } from './_utils.js';
 import _sessionTpl from './_session.rv.pug';
 
 /* global fetch, ol */
@@ -24,7 +24,7 @@ mapLayer.setSource(new ol.source.OSM());
 const vectorSource = new ol.source.Vector();
 const vectorLayer = new ol.layer.Vector({
   source: vectorSource,
-  style: feature => STYLES[feature.getGeometry().getType()],
+  style: styleFor,
 });
 
 map.addLayer(vectorLayer);
