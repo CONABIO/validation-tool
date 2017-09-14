@@ -1,4 +1,4 @@
-import { styleFor, featureFor, latLng, getJSON } from './_utils.js';
+import { centroidFor, styleFor, featureFor, latLng, getJSON } from './_utils.js';
 import _sessionTpl from './_session.rv.pug';
 
 /* global fetch, ol */
@@ -18,7 +18,7 @@ const map = new ol.Map({
 });
 
 // TODO: change this dinamically!
-// mapLayer.setSource(new ol.source.OSM());
+mapLayer.setSource(new ol.source.OSM());
 
 // mount vectors' canvas
 const vectorSource = new ol.source.Vector();
@@ -99,29 +99,10 @@ const featureIds = data[0].features.map(f => f.geoserver_id).join(',');
 getJSON(`/layers?features=${featureIds}`)
   .then(result => {
     vectorSource.clear();
+
     result.features.forEach(data => {
       vectorSource.addFeatures(featureFor(data));
     });
 
-    const centroidsByFeature = result.features.map(calculateCentroidFeature);
-    const centroidByCluster = calculateCentroid(centroidsByFeature);
-
-    map.getView().setCenter(latLng(centroidByCluster));
-
-    console.log(centroidByCluster);
+    map.getView().setCenter(centroidFor(result.features));
   })
-
-
-function calculateCentroidFeature(feature) {
-  return calculateCentroid(feature.geometry.coordinates[0][0]);
-}
-
-function calculateCentroid(coords) {
-  var longitude = 0;
-  var latitude = 0;
-  for(var i=0; i < coords.length; i++) {
-    longitude += coords[i][0];
-    latitude += coords[i][1];
-  }
-  return [longitude / coords.length, latitude / coords.length];
-}

@@ -93,4 +93,21 @@ export function styleFor(feature) {
   return STYLES[feature.getGeometry().getType()];
 }
 
+function calculateCentroid(coords) {
+  var longitude = 0;
+  var latitude = 0;
+  for(var i=0; i < coords.length; i++) {
+    longitude += coords[i][0];
+    latitude += coords[i][1];
+  }
+  return [longitude / coords.length, latitude / coords.length];
+}
+
+export function centroidFor(feature) {
+  const centroidsByFeature = (!Array.isArray(feature) ? [feature] : feature)
+    .map(x => calculateCentroid(feature.geometry.coordinates[0][0]));
+
+  return latLng(calculateCentroid(centroidsByFeature));
+}
+
 export default { styleFor, featureFor, closestElement, latLng, getJSON };
