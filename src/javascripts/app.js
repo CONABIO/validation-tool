@@ -33,9 +33,6 @@ const vectorLayer = new ol.layer.Vector({
 });
 
 map.addLayer(vectorLayer);
-map.on('click', e => {
-  console.log(e)
-});
 
 // mount Ractive app
 const app = new Ractive({
