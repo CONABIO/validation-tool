@@ -45,12 +45,6 @@ function geojsonObject(location, transform) {
   return {
     type: 'Feature',
     geometry: _geometry,
-    crs: {
-      type: 'name',
-      properties: {
-        name: 'EPSG:4326',
-      },
-    },
   };
 }
 
