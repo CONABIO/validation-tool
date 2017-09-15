@@ -1,5 +1,41 @@
 /* global ol */
 
+const DEFAULT_VALUES = {
+  0: 'Sin datos',
+  1: 'Bosque de Coniferas de Oyamel Ayarin Cedro',
+  2: 'Bosque de Coniferas de Pino y Tascate',
+  3: 'Bosque de Encino y Bosque de Galeria',
+  4: 'Chaparral',
+  5: 'Mezquital y Submontano',
+  6: 'Bosque Cultivado e Inducido',
+  7: 'Selva Baja Perennifolia y Bosque Mesofilo',
+  8: 'Selva Baja y Mediana Subperennifolia Galeria y Palmar Natural',
+  9: 'Manglar y Peten',
+  10: 'Selva Mediana y Alta Perennifolia',
+  11: 'Selva Alta Subperennifolia',
+  12: 'Selva Baja Caducifolia Subcaducifolia y Matorral Subtropical',
+  13: 'Selva Mediana Caducifolia y Subcaducifolia',
+  14: 'Mezquital Xerofilo Galeria y Desertico Microfilo',
+  15: 'Matorral Crasicaule',
+  16: 'Matorral Espinoso Tamaulipeco',
+  17: 'Matorral Sarco-Crasicaule',
+  18: 'Matorral Sarcocaule',
+  19: 'Matorral Sarco-Crasicaule de Neblina',
+  20: 'Matorral Rosetofilo Costero',
+  21: 'Matorral Desertico Rosetofilo',
+  22: 'Popal y Tular',
+  23: 'Tular',
+  24: 'Vegetacion de Dunas Costeras',
+  25: 'Vegetacion de Desiertos Arenosos',
+  26: 'Vegetacion Halofila Hidrofila',
+  27: 'Vegetacion Halofila Xerofila y Gipsofila',
+  28: 'Pastizales',
+  29: 'Tierras Agricolas',
+  30: 'Urbano y Construido',
+  31: 'Suelo Desnudo ',
+  32: 'Agua',
+};
+
 const DEFAULT_STYLES = new ol.style.Style({
   stroke: new ol.style.Stroke({
     color: 'rgba(0, 100, 120, 0.5)',
@@ -17,12 +53,20 @@ const STYLES = {
   GeometryCollection: DEFAULT_STYLES,
 };
 
-function geojsonObject(location, transform) {
+export function latLng(coords, inverted) {
+  if (inverted) {
+    return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+  }
+
+  return ol.proj.transform(coords, 'EPSG:4326', 'EPSG:3857');
+}
+
+export function featureFor(location) {
   const _geometry = {
     type: location.geometry.type,
   };
 
-  const _transform = coords => coords.map(_latLng => transform(_latLng));
+  const _transform = coords => coords.map(_latLng => latLng(_latLng));
 
   if (_geometry.type === 'Polygon') {
     _geometry.coordinates = location.geometry.coordinates.map(_transform);
@@ -34,30 +78,16 @@ function geojsonObject(location, transform) {
 
   if (_geometry.type === 'GeometryCollection') {
     _geometry.geometries = location.geometry.geometries
-      .map((geometry) => {
-        return {
-          type: geometry.type,
-          coordinates: geometry.coordinates.map(_transform),
-        };
-      });
+      .map(geometry => ({
+        type: geometry.type,
+        coordinates: geometry.coordinates.map(_transform),
+      }));
   }
 
-  return {
+  return (new ol.format.GeoJSON()).readFeatures({
     type: 'Feature',
     geometry: _geometry,
-  };
-}
-
-export function latLng(coords, inverted) {
-  if (inverted) {
-    return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
-  }
-
-  return ol.proj.transform(coords, 'EPSG:4326', 'EPSG:3857');
-}
-
-export function featureFor(location) {
-  return (new ol.format.GeoJSON()).readFeatures(geojsonObject(location, latLng));
+  });
 }
 
 export function closestElement(node, className) {
@@ -88,12 +118,14 @@ export function styleFor(feature) {
 }
 
 function calculateCentroid(coords) {
-  var longitude = 0;
-  var latitude = 0;
-  for(var i=0; i < coords.length; i++) {
+  let longitude = 0;
+  let latitude = 0;
+
+  for (let i = 0; i < coords.length; i++) {
     longitude += coords[i][0];
     latitude += coords[i][1];
   }
+
   return [longitude / coords.length, latitude / coords.length];
 }
 
@@ -101,7 +133,16 @@ export function centroidFor(feature) {
   const centroidsByFeature = (!Array.isArray(feature) ? [feature] : feature)
     .map(x => calculateCentroid(x.geometry.coordinates[0][0]));
 
-  return latLng(calculateCentroid(centroidsByFeature));
+  return calculateCentroid(centroidsByFeature);
+}
+
+export function valuesFor(value) {
+  return Object.keys(DEFAULT_VALUES)
+    .map(key => ({
+      id: key,
+      label: DEFAULT_VALUES[key],
+      selected: value === key,
+    }));
 }
 
 export default { styleFor, featureFor, closestElement, latLng, getJSON };

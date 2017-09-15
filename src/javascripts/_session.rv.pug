@@ -1,1 +1,32 @@
-h1 {{isEdited}} ! {{features.length}}
+|{{#if activeFeature}}
+
+.p.flex
+  label Class Prevalente
+  select {{#each activeFeature.primaryValue}}
+    option(selected='{{selected}}' value='{{id}}') {{label}}
+    |{{/each}}
+
+.p.flex
+  label Class Second Call
+  select {{#each activeFeature.secondaryValue}}
+    option(selected='{{selected}}' value='{{id}}') {{label}}
+    |{{/each}}
+
+.p
+  button(disabled='{{!activeFeature.canContinue}}' on-click='doPrev()') Previous
+  button(disabled='{{!activeFeature.canContinue}}' on-click='doNext()') Next
+
+details.p
+  summary
+    small SEE MAP / INFO
+  .sm-flex
+    img.fit(src='{{activeFeature.satelliteOverview}}')
+    dl.p
+      dt Foo
+      dd Bar
+      dt Foo
+      dd Bar
+      dt Foo
+      dd Bar
+
+|{{/if}}

@@ -3,6 +3,31 @@
 
 // utilitites
 
+.fr {
+  float: right;
+}
+
+.p {
+  padding: 5px;
+}
+
+.c {
+  text-align: center;
+}
+
+.fit {
+  max-width: 100%;
+  max-height: auto;
+}
+
+.flex {
+  display: flex;
+
+  > label {
+    min-width: 10em;
+  }
+}
+
 .layer {
   position: absolute;
   top: 0;
@@ -18,11 +43,51 @@
 
 // layout
 
+dl {
+  dt {
+    font-weight: bold;
+  }
+
+  dd {
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
+}
+
+small {
+  color: gray;
+  font-size: 13px;
+}
+
+select {
+  width: 100%;
+}
+
+button {
+  padding: 5px;
+  border: 1px solid gray;
+
+  &:hover {
+    background-color: gray;
+    color: silver;
+  }
+
+  ~ button {
+    margin-left: 5px;
+  }
+}
+
+select, summary, button {
+  cursor: pointer;
+}
+
 #menu {
   background-color: silver;
   z-index: 1;
   top: auto;
-  height: @sidebar-size;
 
   ~ #map {
     transform: translate3d(0, -(@sidebar-size / 3), 0);
@@ -37,5 +102,20 @@
     ~ #map {
       transform: translate3d(-(@sidebar-size / 2), 0, 0);
     }
+  }
+}
+
+.ol-zoomslider.ol-unselectable.ol-control {
+  margin-top: 50px;
+}
+
+@media screen and (min-width: @sm-width) and (max-width: @md-width) {
+  .sm-flex {
+    display: flex;
+  }
+
+  .fit {
+    max-width: 300px;
+    max-height: 150px;
   }
 }
