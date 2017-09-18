@@ -91,16 +91,16 @@ function loadFeature(result) {
 }
 
 function loadCluster(data) {
-  app.set('isEdited', data[0].edited);
-  app.set('features', data[0].features);
+  app.set('isEdited', data.edited);
+  app.set('features', data.features);
 
-  const featureIds = data[0].features.map(f => f.geoserver_id).join(',');
+  const featureIds = data.features.map(f => f.geoserver_id).join(',');
 
   return getJSON(`/layers?features=${featureIds}`).then(loadFeature);
 }
 
 // TODO: improve this shit...
-const randomId = 14000; Math.round(Math.random() * 15000 + 1);
+const randomId = Math.round(Math.random() * 15000 + 1);
 
 getJSON(`/clusters?clusterId=${randomId}`)
   .then(loadCluster)

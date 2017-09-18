@@ -47,7 +47,7 @@ function getLayers(conn) {
 function getClusters(conn) {
   const auth = `${process.env.VALIDATION_API_USERNAME}:${process.env.VALIDATION_API_PASSWORD}`;
 
-  const url = `http://localhost:8000/clusters?cluster_id=${conn.params.clusterId}`;
+  const url = `http://localhost:8000/clusters/${conn.params.clusterId}/?format=json`;
 
   if (CACHED[url]) {
     conn.resp_body = CACHED[url];
