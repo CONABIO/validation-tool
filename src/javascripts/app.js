@@ -27,18 +27,17 @@ const vm = new Vue({
 // - once all shapes' questions are resolved the session ends
 
 const USER_ID = 'interpreter_1';
-
-let OFFSET = 0;
+const OFFSET = 0;
 
 // FIXME: paginate over clusters
 getJSON(`/clusters?user=${USER_ID}`)
   .then(result => {
-    vm.set('offset', OFFSET);
-    vm.set('count', result.count);
     vm.set('data', result.results);
+    vm.set('count', result.count);
+    vm.set('username', USER_ID);
+    vm.set('offset', OFFSET);
 
-    // FIXME: move actions inside...
-    vm.call('loadCluster', USER_ID, result.results[OFFSET].features);
+    vm.call('loadCluster');
   })
   .catch(e => {
     console.log(e);

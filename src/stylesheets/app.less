@@ -3,6 +3,27 @@
 
 // utilitites
 
+.blocked::before {
+  background-color: rgba(255, 255, 255, .7);
+  content: 'Loading cluster...';
+  animation: blink 1s infinite;
+  letter-spacing: .1em;
+  position: absolute;
+  text-align: center;
+  font-size: 30px;
+  padding-top: 50%;
+  z-index: 2;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+}
+
+@keyframes blink {
+  0% { color: black; }
+  33% { color: white; }
+}
+
 .cf {
   overflow: hidden;
 }

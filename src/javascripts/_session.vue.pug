@@ -40,6 +40,7 @@ script.
         data: [],
         count: 0,
         offset: -1,
+        username: null,
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
@@ -79,7 +80,7 @@ script.
           this.offset = this.count - 1;
         }
 
-        this.loadCluster('interpreter_1', this.availableFeatures);
+        this.loadCluster();
       },
       doAnswer() {
         console.log('doAnswer');
@@ -91,7 +92,7 @@ script.
           this.offset = 0;
         }
 
-        this.loadCluster('interpreter_1', this.availableFeatures);
+        this.loadCluster();
       },
       centerFeatures(features) {
         const center = centroidFor(features);
@@ -113,10 +114,16 @@ script.
 
         this.centerFeatures(result.features);
       },
-      loadCluster(userId, features) {
-        const featureIds = features.map(f => f.geoserver_id).join(',');
+      loadCluster() {
+        this.$refs.appContainer.classList.add('blocked');
 
-        return getJSON(`/layers?user=${userId}&features=${featureIds}`).then(x => this.loadFeature(x));
+        const featureIds = this.availableFeatures.map(f => f.geoserver_id).join(',');
+
+        return getJSON(`/layers?user=${this.username}&features=${featureIds}`)
+          .then(x => this.loadFeature(x))
+          .then(() => {
+            this.$refs.appContainer.classList.remove('blocked');
+          });
       },
     },
     mounted() {
