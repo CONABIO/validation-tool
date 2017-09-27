@@ -1,10 +1,6 @@
 template
   #app.container(ref='appContainer')
     #menu.layer(ref='menuLayer')
-      .p.c
-        label: input(type='radio' name='feature' @change='setFeature(-1)' checked)
-        label(v-for='x, k in availableFeatures'): input(type='radio' name='feature' @change='setFeature(k)')
-
       .p.flex
         label Class Prevalente
         select(v-model='primaryValue' @change='setPrimary')
@@ -15,11 +11,15 @@ template
         select(v-model='secondaryValue' @change='setSecondary')
           option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
-      .p.cf Cluster {{offset + 1}} from {{count}}.
-        .fr
-          button(@click='doAnswer') Send Answer
-          button(@click='doPrev') Previous
-          button(@click='doNext') Next
+      .p.c
+        label: input(type='radio' name='feature' @change='setFeature(-1)' checked)
+        label(v-for='x, k in availableFeatures'): input(type='radio' name='feature' @change='setFeature(k)')
+
+      .p.cf
+        small.fr Cluster {{offset + 1}} from {{count}}.
+        //- FIXME: toggle between SEND / PREV+NEXT depending on answers
+        button(@click='doPrev') &langle; Previous cluster
+        button(@click='doNext') Next cluster &rangle;
 
       details.p
         summary
@@ -29,7 +29,7 @@ template
     #map.layer(ref='mapLayer')
 
 script.
-  import { DEFAULT_VALUES, DEFAULT_STYLES, featureFor, centroidFor, valuesFor, styleFor, latLng, getJSON } from './_utils.js';
+  import { DEFAULT_VALUES, DEFAULT_STYLES, featureFor, centroidFor, styleFor, latLng, getJSON } from './_utils.js';
 
   export default {
     data() {
@@ -43,7 +43,10 @@ script.
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
-        availableValues: DEFAULT_VALUES,
+        availableValues: Object.keys(DEFAULT_VALUES).map(x => ({
+          label: DEFAULT_VALUES[x],
+          value: x,
+        })),
       };
     },
     computed: {

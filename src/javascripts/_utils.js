@@ -152,13 +152,4 @@ export function centroidFor(feature) {
   return calculateCentroid(centroidsByFeature);
 }
 
-export function valuesFor(value) {
-  return Object.keys(DEFAULT_VALUES)
-    .map(key => ({
-      id: key,
-      label: DEFAULT_VALUES[key],
-      selected: value === key,
-    }));
-}
-
 export default { featureFor, closestElement, latLng, getJSON };
