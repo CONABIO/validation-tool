@@ -109,6 +109,10 @@ export function closestElement(node, className) {
 }
 
 export function getJSON(url, opts) {
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  opts.headers['Accept'] = 'application/json';
+
   return fetch(url, opts)
     .then(res => res.json());
 }

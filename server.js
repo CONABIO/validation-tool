@@ -45,18 +45,12 @@ function getLayers(conn) {
 }
 
 function getClusters(conn) {
-  const auth = `${process.env.VALIDATION_API_USERNAME}:${process.env.VALIDATION_API_PASSWORD}`;
-
-  const url = `http://localhost:8000/clusters/${conn.params.clusterId}/?format=json`;
-
-  if (CACHED[url]) {
-    conn.resp_body = CACHED[url];
-    return;
-  }
+  const apiCall = 'http://localhost:8000/clusters/?format=json';
+  const auth = `${conn.params.user}:${conn.params.user}`;
 
   return new Promise((resolve, reject) => {
     reqFast({
-      url,
+      url: apiCall,
       headers: {
         Authorization: `Basic ${new Buffer(auth).toString('base64')}`,
       },
@@ -69,7 +63,6 @@ function getClusters(conn) {
     });
   })
   .then(result => {
-    CACHED[url] = result;
     conn.resp_body = result;
   });
 }

@@ -1,0 +1,45 @@
+template
+  #menu.layer
+    .p.flex
+      label Class Prevalente
+      select(v-model='primaryValue')
+        option(v-for='item in availableValues' v-bind:value='item.id') {{item.label}}
+
+    .p.flex
+      label Class Second Call
+      select(v-model='secondaryValue')
+        option(v-for='item in availableValues' v-bind:value='item.id') {{item.label}}
+
+    .p
+      button Previous
+      button Next
+
+    p WUT: {{clusters.length}}
+
+    details.p
+      summary
+        small SEE MAP / INFO
+      .sm-flex
+        img.fit(v-bind:src='referenceImage')
+        dl.p
+          dt Foo
+          dd Bar
+          dt Foo
+          dd Bar
+          dt Foo
+          dd Bar
+
+script.
+  import { valuesFor } from './_utils.js';
+
+  export default {
+    data() {
+      return {
+        clusters: [],
+        primaryValue: null,
+        secondaryValue: null,
+        referenceImage: null,
+        availableValues: valuesFor(),
+      };
+    },
+  };

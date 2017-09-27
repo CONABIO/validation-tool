@@ -1,7 +1,7 @@
-import { valuesFor, centroidFor, styleFor, featureFor, latLng, getJSON } from './_utils.js';
-import _sessionTpl from './_session.rv.pug';
+import { centroidFor, styleFor, featureFor, latLng, getJSON } from './_utils.js';
+import _sessionVue from './_session.vue.pug';
 
-/* global fetch, ol */
+/* global Vue, fetch, ol */
 
 // mount OL3 canvas
 const mapLayer = new ol.layer.Tile();
@@ -34,29 +34,19 @@ const vectorLayer = new ol.layer.Vector({
 
 map.addLayer(vectorLayer);
 
-// mount Ractive app
-const app = new Ractive({
+// mount Vue app
+
+const vm = new Vue({
   el: document.getElementById('menu'),
-  template: _sessionTpl,
-  data() {
-    // initial state
-    return {
-      currentFeature: 0,
-      activeFeature: null,
-      isEdited: null,
-      features: [],
-    };
+  props: ['referenceImage'],
+  render(h) {
+    return h(_sessionVue);
   },
-  computed: {
-    isFinished() {
-      return this.get('features').every(x => x.complete);
+  methods: {
+    set(prop, value) {
+      // FIXME: this is BAD
+      vm.$children[0][prop] = value;
     },
-  },
-  doPrev() {
-    console.log(-1);
-  },
-  doNext() {
-    console.log(+1);
   },
 });
 
@@ -64,6 +54,8 @@ const app = new Ractive({
 // - each different shape must can be turn on/off its visibility
 // - each different shape must anwser the two main questions
 // - once all shapes' questions are resolved the session ends
+
+const USER_ID = 'interpreter_1';
 
 function loadFeature(result) {
   vectorSource.clear();
@@ -76,34 +68,25 @@ function loadFeature(result) {
 
   map.getView().setCenter(latLng(center));
 
-  const activeFeature = app.get(`features.${app.get('currentFeature')}`);
-
-  app.set('activeFeature', activeFeature);
-  app.set('activeFeature.primaryValue', valuesFor());
-  app.set('activeFeature.secondaryValue', valuesFor());
-
   // FIXME: gmaps is not working fine with lat/lon values
   const latLon = center.join(',');
   const url = `https://static-maps.yandex.ru/1.x/?lang=en-US&ll=${latLon}&z=5&l=map&size=600,300&pt=${latLon},vkbkm`;
 
-  app.set('activeFeature.satelliteOverview', url);
-  app.set('activeFeature.canContinue', false);
+  vm.set('referenceImage', url);
 }
 
 function loadCluster(data) {
-  app.set('isEdited', data.edited);
-  app.set('features', data.features);
-
   const featureIds = data.features.map(f => f.geoserver_id).join(',');
 
-  return getJSON(`/layers?features=${featureIds}`).then(loadFeature);
+  return getJSON(`/layers?user=${USER_ID}&features=${featureIds}`).then(loadFeature);
 }
 
-// TODO: improve this shit...
-const randomId = Math.round(Math.random() * 15000 + 1);
-
-getJSON(`/clusters?clusterId=${randomId}`)
-  .then(loadCluster)
+// FIXME: paginate over clusters
+getJSON(`/clusters?user=${USER_ID}`)
+  .then(result => {
+    vm.set('clusters', result.results);
+    loadCluster(result.results[0]);
+  })
   .catch(e => {
     console.log(e);
   });
