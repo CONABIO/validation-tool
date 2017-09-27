@@ -2,10 +2,8 @@ template
   #app.container(ref='appContainer')
     #menu.layer(ref='menuLayer')
       .p.flex
-        label Current feature
-        select(v-model='currentFeature' @change='setFeature')
-          option(value=-1) All features
-          option(v-for='x, k in features' v-bind:value='k') {{x.cluster_id}}.{{x.geoserver_id}}.{{x.id}}
+        button(@click='setFeature(-1)') All features
+        button(v-for='x, k in features' @click='setFeature(k)') {{k + 1}}
 
       .p.flex
         label Class Prevalente
@@ -45,14 +43,13 @@ script.
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
-        currentFeature: -1,
         availableValues: DEFAULT_VALUES,
       };
     },
     methods: {
-      setFeature() {
+      setFeature(offset) {
         this.$vectorSource.getFeatures().forEach((feature, key) => {
-          if (this.currentFeature === -1 || this.currentFeature === key) {
+          if (offset === -1 || offset === key) {
             feature.setStyle(DEFAULT_STYLES.on);
           } else {
             feature.setStyle(DEFAULT_STYLES.off);
