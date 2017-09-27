@@ -1,6 +1,6 @@
 /* global ol */
 
-const DEFAULT_VALUES = {
+export const DEFAULT_VALUES = {
   0: 'Sin datos',
   1: 'Bosque de Coniferas de Oyamel Ayarin Cedro',
   2: 'Bosque de Coniferas de Pino y Tascate',
@@ -36,21 +36,33 @@ const DEFAULT_VALUES = {
   32: 'Agua',
 };
 
-const DEFAULT_STYLES = new ol.style.Style({
-  stroke: new ol.style.Stroke({
-    color: 'rgba(0, 100, 120, 0.5)',
-    lineDash: [4],
-    width: 1,
+export const DEFAULT_STYLES = {
+  on: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0, 100, 120, 0.5)',
+      lineDash: [4],
+      width: 1,
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0, 100, 120, 0.2)',
+    }),
   }),
-  fill: new ol.style.Fill({
-    color: 'rgba(0, 100, 120, 0.2)',
+  off: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0, 100, 120, 0.05)',
+      lineDash: [4],
+      width: 1,
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0, 100, 120, 0.1)',
+    }),
   }),
-});
+};
 
 const STYLES = {
-  Polygon: DEFAULT_STYLES,
-  MultiPolygon: DEFAULT_STYLES,
-  GeometryCollection: DEFAULT_STYLES,
+  Polygon: DEFAULT_STYLES.on,
+  MultiPolygon: DEFAULT_STYLES.on,
+  GeometryCollection: DEFAULT_STYLES.on,
 };
 
 export function latLng(coords, inverted) {
@@ -149,4 +161,4 @@ export function valuesFor(value) {
     }));
 }
 
-export default { styleFor, featureFor, closestElement, latLng, getJSON };
+export default { featureFor, closestElement, latLng, getJSON };

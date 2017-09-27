@@ -5,7 +5,7 @@ template
         label Current feature
         select(v-model='currentFeature' @change='setFeature')
           option(value=-1) All features
-          option(v-for='x in features' v-bind:value='x.id') {{x.cluster_id}}.{{x.geoserver_id}}.{{x.id}}
+          option(v-for='x, k in features' v-bind:value='k') {{x.cluster_id}}.{{x.geoserver_id}}.{{x.id}}
 
       .p.flex
         label Class Prevalente
@@ -31,10 +31,13 @@ template
     #map.layer(ref='mapLayer')
 
 script.
-  import { featureFor, centroidFor, valuesFor, styleFor, latLng, getJSON } from './_utils.js';
+  import { DEFAULT_VALUES, DEFAULT_STYLES, featureFor, centroidFor, valuesFor, styleFor, latLng, getJSON } from './_utils.js';
 
   export default {
     data() {
+      // FIXME: collect state for the current cluster as a matrix,
+      // where each feature has its own answers...
+
       return {
         offset: -1,
         clusters: 0,
@@ -43,12 +46,18 @@ script.
         secondaryValue: null,
         referenceImage: null,
         currentFeature: -1,
-        availableValues: valuesFor(),
+        availableValues: DEFAULT_VALUES,
       };
     },
     methods: {
       setFeature() {
-        console.log('setFeature');
+        this.$vectorSource.getFeatures().forEach((feature, key) => {
+          if (this.currentFeature === -1 || this.currentFeature === key) {
+            feature.setStyle(DEFAULT_STYLES.on);
+          } else {
+            feature.setStyle(DEFAULT_STYLES.off);
+          }
+        });
       },
       setPrimary() {
         console.log('setPrimary');
