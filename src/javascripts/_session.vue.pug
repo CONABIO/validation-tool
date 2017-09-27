@@ -1,45 +1,127 @@
 template
-  #menu.layer
-    .p.flex
-      label Class Prevalente
-      select(v-model='primaryValue')
-        option(v-for='item in availableValues' v-bind:value='item.id') {{item.label}}
+  #app.container(ref='appContainer')
+    #menu.layer(ref='menuLayer')
+      .p.flex
+        label Current feature
+        select(v-model='currentFeature' @change='setFeature')
+          option(value=-1) All features
+          option(v-for='x in features' v-bind:value='x.id') {{x.cluster_id}}.{{x.geoserver_id}}.{{x.id}}
 
-    .p.flex
-      label Class Second Call
-      select(v-model='secondaryValue')
-        option(v-for='item in availableValues' v-bind:value='item.id') {{item.label}}
+      .p.flex
+        label Class Prevalente
+        select(v-model='primaryValue' @change='setPrimary')
+          option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
-    .p
-      button Previous
-      button Next
+      .p.flex
+        label Class Second Call
+        select(v-model='secondaryValue' @change='setSecondary')
+          option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
-    p WUT: {{clusters.length}}
+      .p.cf Cluster {{offset + 1}} from {{clusters}}.
+        .fr
+          button(@click='doAnswer') Send Answer
+          button(@click='doPrev') Previous
+          button(@click='doNext') Next
 
-    details.p
-      summary
-        small SEE MAP / INFO
-      .sm-flex
-        img.fit(v-bind:src='referenceImage')
-        dl.p
-          dt Foo
-          dd Bar
-          dt Foo
-          dd Bar
-          dt Foo
-          dd Bar
+      details.p
+        summary
+          small SEE MAP / INFO
+        .sm-flex
+          img.fit(v-bind:src='referenceImage')
+    #map.layer(ref='mapLayer')
 
 script.
-  import { valuesFor } from './_utils.js';
+  import { featureFor, centroidFor, valuesFor, styleFor, latLng, getJSON } from './_utils.js';
 
   export default {
     data() {
       return {
-        clusters: [],
+        offset: -1,
+        clusters: 0,
+        features: [],
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
+        currentFeature: -1,
         availableValues: valuesFor(),
       };
+    },
+    methods: {
+      setFeature() {
+        console.log('setFeature');
+      },
+      setPrimary() {
+        console.log('setPrimary');
+      },
+      setSecondary() {
+        console.log('setSecondary');
+      },
+      doPrev() {
+        console.log('doPrev');
+      },
+      doAnswer() {
+        console.log('doAnswer');
+      },
+      doNext() {
+        console.log('doNext');
+      },
+      centerFeatures(features) {
+        const center = centroidFor(features);
+
+        this.$mapSource.getView().setCenter(latLng(center));
+
+        // FIXME: gmaps is not working fine with lat/lon values
+        const latLon = center.join(',');
+        const url = `https://static-maps.yandex.ru/1.x/?lang=en-US&ll=${latLon}&z=5&l=map&size=600,300&pt=${latLon},vkbkm`;
+
+        this.referenceImage = url;
+      },
+      loadFeature(result) {
+        this.$vectorSource.clear();
+
+        result.features.forEach(feature => {
+          this.$vectorSource.addFeatures(featureFor(feature));
+        });
+
+        this.centerFeatures(result.features);
+      },
+      loadCluster(userId, features) {
+        const featureIds = features.map(f => f.geoserver_id).join(',');
+
+        return getJSON(`/layers?user=${userId}&features=${featureIds}`).then(x => this.loadFeature(x));
+      },
+    },
+    mounted() {
+      // mount OL3 canvas
+      const mapLayer = new ol.layer.Tile();
+
+      this.$mapSource = new ol.Map({
+        interactions: ol.interaction.defaults({
+          mouseWheelZoom: false,
+        }),
+        controls: [
+          new ol.control.ZoomSlider(),
+        ],
+        layers: [mapLayer],
+        target: this.$refs.mapLayer,
+        view: new ol.View({
+          center: latLng([-99.133209, 19.432608]),
+          zoom: 16,
+          minZoom: 5,
+        }),
+      });
+
+      // TODO: change this dinamically!
+      mapLayer.setSource(new ol.source.OSM());
+
+      // mount vectors' canvas
+      this.$vectorSource = new ol.source.Vector();
+
+      const vectorLayer = new ol.layer.Vector({
+        source: this.$vectorSource,
+        style: styleFor,
+      });
+
+      this.$mapSource.addLayer(vectorLayer);
     },
   };
