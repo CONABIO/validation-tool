@@ -75,6 +75,8 @@ script.
         } else {
           this.offset = this.count - 1;
         }
+
+        this.loadCluster('interpreter_1', this.availableFeatures);
       },
       doAnswer() {
         console.log('doAnswer');
@@ -85,6 +87,8 @@ script.
         } else {
           this.offset = 0;
         }
+
+        this.loadCluster('interpreter_1', this.availableFeatures);
       },
       centerFeatures(features) {
         const center = centroidFor(features);

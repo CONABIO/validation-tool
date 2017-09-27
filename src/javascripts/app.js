@@ -37,6 +37,7 @@ getJSON(`/clusters?user=${USER_ID}`)
     vm.set('count', result.count);
     vm.set('data', result.results);
 
+    // FIXME: move actions inside...
     vm.call('loadCluster', USER_ID, result.results[OFFSET].features);
   })
   .catch(e => {
