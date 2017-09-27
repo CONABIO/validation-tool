@@ -1,9 +1,9 @@
 template
   #app.container(ref='appContainer')
     #menu.layer(ref='menuLayer')
-      .p.flex
-        button(@click='setFeature(-1)') All features
-        button(v-for='x, k in features' @click='setFeature(k)') {{k + 1}}
+      .p.c
+        label: input(type='radio' name='feature' @change='setFeature(-1)' checked)
+        label(v-for='x, k in availableFeatures'): input(type='radio' name='feature' @change='setFeature(k)')
 
       .p.flex
         label Class Prevalente
@@ -15,7 +15,7 @@ template
         select(v-model='secondaryValue' @change='setSecondary')
           option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
-      .p.cf Cluster {{offset + 1}} from {{clusters}}.
+      .p.cf Cluster {{offset + 1}} from {{count}}.
         .fr
           button(@click='doAnswer') Send Answer
           button(@click='doPrev') Previous
@@ -37,14 +37,21 @@ script.
       // where each feature has its own answers...
 
       return {
+        data: [],
+        count: 0,
         offset: -1,
-        clusters: 0,
-        features: [],
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
         availableValues: DEFAULT_VALUES,
       };
+    },
+    computed: {
+      availableFeatures() {
+        return this.data[this.offset]
+          ? this.data[this.offset].features
+          : [];
+      },
     },
     methods: {
       setFeature(offset) {
@@ -63,13 +70,21 @@ script.
         console.log('setSecondary');
       },
       doPrev() {
-        console.log('doPrev');
+        if (this.offset > 0) {
+          this.offset = this.offset - 1;
+        } else {
+          this.offset = this.count - 1;
+        }
       },
       doAnswer() {
         console.log('doAnswer');
       },
       doNext() {
-        console.log('doNext');
+        if (this.offset < this.count - 1) {
+          this.offset = this.offset + 1;
+        } else {
+          this.offset = 0;
+        }
       },
       centerFeatures(features) {
         const center = centroidFor(features);

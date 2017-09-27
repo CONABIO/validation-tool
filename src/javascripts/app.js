@@ -34,8 +34,8 @@ let OFFSET = 0;
 getJSON(`/clusters?user=${USER_ID}`)
   .then(result => {
     vm.set('offset', OFFSET);
-    vm.set('clusters', result.count);
-    vm.set('features', result.results[OFFSET].features);
+    vm.set('count', result.count);
+    vm.set('data', result.results);
 
     vm.call('loadCluster', USER_ID, result.results[OFFSET].features);
   })
