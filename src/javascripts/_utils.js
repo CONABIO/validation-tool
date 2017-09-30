@@ -37,27 +37,7 @@ export const DEFAULT_VALUES = {
 };
 
 export const DEFAULT_STYLES = {
-  on: new ol.style.Style({
-    stroke: new ol.style.Stroke({
-      color: 'rgba(0, 100, 120, 0.5)',
-      lineDash: [4],
-      width: 1,
-    }),
-    fill: new ol.style.Fill({
-      color: 'rgba(0, 100, 120, 0.2)',
-    }),
-  }),
-  off: new ol.style.Style({
-    stroke: new ol.style.Stroke({
-      color: 'rgba(0, 100, 120, 0.05)',
-      lineDash: [4],
-      width: 1,
-    }),
-    fill: new ol.style.Fill({
-      color: 'rgba(0, 100, 120, 0.1)',
-    }),
-  }),
-  undef: new ol.style.Style({
+  complete: new ol.style.Style({
     stroke: new ol.style.Stroke({
       color: 'rgba(0, 100, 120, 0.05)',
       lineDash: [4],
@@ -69,12 +49,22 @@ export const DEFAULT_STYLES = {
   }),
   select: new ol.style.Style({
     stroke: new ol.style.Stroke({
-      color: 'rgba(0, 100, 120, 0.05)',
+      color: 'rgba(0, 0, 0, 0.1)',
       lineDash: [4],
       width: 1,
     }),
     fill: new ol.style.Fill({
-      color: 'rgba(0, 100, 120, 0.1)',
+      color: 'rgba(120, 120, 120, 0.1)',
+    }),
+  }),
+  undef: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(255, 0, 0, 0.3)',
+      lineDash: [4],
+      width: 1,
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(255, 100, 120, 0.1)',
     }),
   }),
 };
@@ -154,15 +144,11 @@ export function getJSON(url, opts) {
 export function styleFor(feature) {
   const props = feature.getProperties();
 
-  if (props.firstCall || props.secondCall) {
-    return DEFAULT_STYLES.undef;
-  }
-
   if (props.edited) {
-    return DEFAULT_STYLES.off;
+    return DEFAULT_STYLES.complete;
   }
 
-  return DEFAULT_STYLES.on;
+  return DEFAULT_STYLES.undef;
 }
 
 function calculateCentroid(coords) {

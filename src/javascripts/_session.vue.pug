@@ -12,7 +12,7 @@ template
           option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
       .p.cf
-        small.fr Cluster {{offset + 1}} from {{count}}
+        small.fr {{selectedFeatureOffset}}/{{availableFeatures.length}} features - cluster {{offset + 1}} from {{count}}
         //- FIXME: toggle between SEND / PREV+NEXT depending on answers
         button(@click='doPrev') &langle; Previous cluster
         button(@click='doNext') Next cluster &rangle;
@@ -41,6 +41,7 @@ script.
         secondaryValue: null,
         referenceImage: null,
         selectedFeature: null,
+        selectedFeatureOffset: 0,
         availableValues: Object.keys(DEFAULT_VALUES).map(x => ({
           label: DEFAULT_VALUES[x],
           value: x,
@@ -155,16 +156,23 @@ script.
 
         this.$mapSource.forEachFeatureAtPixel(pixel, feature => {
           if (this.selectedFeature && this.selectedFeature !== feature.getId()) {
-            //- feature.setStyle(DEFAULT_STYLES.on);
             this.$vectorSource.getFeatures().forEach(x => {
               if (x.getId() === this.selectedFeature) {
-                x.setStyle(DEFAULT_STYLES.off);
+                x.setStyle(styleFor(feature));
               }
             })
           }
 
           this.selectedFeature = feature.getId();
-          feature.setStyle(DEFAULT_STYLES.on);
+
+          const id = parseInt(this.selectedFeature.split('.').pop(), 10);
+          const f = this.availableFeatures
+            .map((x, i) => (x.geoserver_id === id ? i : -1))
+            .filter(x => x >= 0)[0];
+
+          this.selectedFeatureOffset = f + 1;
+
+          feature.setStyle(DEFAULT_STYLES.select);
         });
       });
 
