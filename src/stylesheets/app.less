@@ -115,6 +115,13 @@ button {
   ~ button {
     margin-left: 5px;
   }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: silver;
+    color: gray;
+    opacity: .5;
+  }
 }
 
 select, summary, button {

@@ -39,22 +39,22 @@ export const DEFAULT_VALUES = {
 export const DEFAULT_STYLES = {
   complete: new ol.style.Style({
     stroke: new ol.style.Stroke({
-      color: 'rgba(0, 100, 120, 0.05)',
+      color: 'rgba(0, 150, 120, 0.3)',
       lineDash: [4],
       width: 1,
     }),
     fill: new ol.style.Fill({
-      color: 'rgba(0, 100, 120, 0.1)',
+      color: 'rgba(0, 150, 120, 0.1)',
     }),
   }),
   select: new ol.style.Style({
     stroke: new ol.style.Stroke({
-      color: 'rgba(0, 0, 0, 0.1)',
+      color: 'rgba(0, 0, 120, 0.1)',
       lineDash: [4],
       width: 1,
     }),
     fill: new ol.style.Fill({
-      color: 'rgba(120, 120, 120, 0.1)',
+      color: 'rgba(0, 0, 200, 0.05)',
     }),
   }),
   undef: new ol.style.Style({
@@ -105,11 +105,9 @@ export function featureFor(location) {
     type: 'Feature',
     geometry: _geometry,
     properties: {
-      isEdited: location.edited,
-      firstCall: location.first_call,
-      secondCall: location.second_call,
-      edoId: location.data.properties.edoid,
-      clusterId: location.data.properties.clusterid,
+      edited: location.edited,
+      first_call: location.first_call,
+      second_call: location.second_call,
     },
   });
 }

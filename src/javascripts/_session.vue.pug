@@ -3,19 +3,19 @@ template
     #menu.layer(ref='menuLayer')
       .p.flex
         label Class Prevalente
-        select(v-model='primaryValue' @change='setPrimary')
-          option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
+        select(v-model='primaryValue' @change='setPrimary' v-bind:disabled='!selectedFeature')
+          option(v-for='x in availableValues' v-bind:value='x.value') {{x.label}}
 
       .p.flex
         label Class Second Call
-        select(v-model='secondaryValue' @change='setSecondary')
-          option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
+        select(v-model='secondaryValue' @change='setSecondary' v-bind:disabled='!selectedFeature')
+          option(v-for='x in availableValues' v-bind:value='x.value') {{x.label}}
 
       .p.cf
-        small.fr {{selectedFeatureOffset}}/{{availableFeatures.length}} features - cluster {{offset + 1}} from {{count}}
-        //- FIXME: toggle between SEND / PREV+NEXT depending on answers
-        button(@click='doPrev') &langle; Previous cluster
-        button(@click='doNext') Next cluster &rangle;
+        small.fr {{feature}}/{{availableFeatures.length}} features - cluster {{offset + 1}} from {{count}}
+        button(@click='doPrev') Previous
+        button(@click='doNext') Next
+        button(@click='doAnswer' v-bind:disabled='!isComplete') Save
 
       details.p
         summary
@@ -36,12 +36,12 @@ script.
         data: [],
         count: 0,
         offset: -1,
+        feature: 0,
         username: null,
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
         selectedFeature: null,
-        selectedFeatureOffset: 0,
         availableValues: Object.keys(DEFAULT_VALUES).map(x => ({
           label: DEFAULT_VALUES[x],
           value: x,
@@ -54,22 +54,27 @@ script.
           ? this.data[this.offset].features
           : [];
       },
+      currentFeature() {
+        return this.data[this.offset].features[this.feature - 1];
+      },
+      isComplete() {
+        return this.data
+          && this.offset >= 0
+          && this.currentFeature
+          && this.currentFeature.first_call >= 0
+          && this.currentFeature.second_call >= 0;
+      },
     },
     methods: {
-      setFeature(offset) {
-        this.$vectorSource.getFeatures().forEach((feature, key) => {
-          if (offset === -1 || offset === key) {
-            feature.setStyle(DEFAULT_STYLES.on);
-          } else {
-            feature.setStyle(DEFAULT_STYLES.off);
-          }
-        });
+      setFeature(feature) {
+        this.primaryValue = this.currentFeature.first_call;
+        this.secondaryValue = this.currentFeature.second_call;
       },
       setPrimary() {
-        console.log('setPrimary');
+        this.currentFeature.first_call = parseInt(this.primaryValue, 10);
       },
       setSecondary() {
-        console.log('setSecondary');
+        this.currentFeature.second_call = parseInt(this.secondaryValue, 10);
       },
       doPrev() {
         if (this.offset > 0) {
@@ -81,7 +86,19 @@ script.
         this.loadCluster();
       },
       doAnswer() {
-        console.log('doAnswer');
+        this.currentFeature.edited = true;
+
+        this.$vectorSource.getFeatures().forEach(x => {
+          if (x.getId() === this.selectedFeature) {
+            x.setProperties(this.currentFeature);
+            x.setStyle(DEFAULT_STYLES.complete);
+          }
+        });
+
+        this.feature = 0;
+        this.selectedFeature = null;
+        this.primaryValue = null;
+        this.secondaryValue = null;
       },
       doNext() {
         if (this.offset < this.count - 1) {
@@ -152,17 +169,15 @@ script.
       });
 
       this.$mapSource.on('click', e => {
+        this.$vectorSource.getFeatures().forEach(x => {
+          if (x.getId() === this.selectedFeature) {
+            x.setStyle(styleFor(x));
+          }
+        });
+
         const pixel = this.$mapSource.getEventPixel(e.originalEvent);
 
         this.$mapSource.forEachFeatureAtPixel(pixel, feature => {
-          if (this.selectedFeature && this.selectedFeature !== feature.getId()) {
-            this.$vectorSource.getFeatures().forEach(x => {
-              if (x.getId() === this.selectedFeature) {
-                x.setStyle(styleFor(feature));
-              }
-            })
-          }
-
           this.selectedFeature = feature.getId();
 
           const id = parseInt(this.selectedFeature.split('.').pop(), 10);
@@ -170,9 +185,10 @@ script.
             .map((x, i) => (x.geoserver_id === id ? i : -1))
             .filter(x => x >= 0)[0];
 
-          this.selectedFeatureOffset = f + 1;
-
           feature.setStyle(DEFAULT_STYLES.select);
+
+          this.feature = f + 1;
+          this.setFeature(feature);
         });
       });
 
