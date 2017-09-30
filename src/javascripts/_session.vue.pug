@@ -11,12 +11,8 @@ template
         select(v-model='secondaryValue' @change='setSecondary')
           option(v-for='x in availableValues' v-bind:value='x.id') {{x.label}}
 
-      .p.c
-        label: input(type='radio' name='feature' @change='setFeature(-1)' checked)
-        label(v-for='x, k in availableFeatures'): input(type='radio' name='feature' @change='setFeature(k)')
-
       .p.cf
-        small.fr Cluster {{offset + 1}} from {{count}}.
+        small.fr Cluster {{offset + 1}} from {{count}}
         //- FIXME: toggle between SEND / PREV+NEXT depending on answers
         button(@click='doPrev') &langle; Previous cluster
         button(@click='doNext') Next cluster &rangle;
@@ -44,6 +40,7 @@ script.
         primaryValue: null,
         secondaryValue: null,
         referenceImage: null,
+        selectedFeature: null,
         availableValues: Object.keys(DEFAULT_VALUES).map(x => ({
           label: DEFAULT_VALUES[x],
           value: x,
@@ -105,14 +102,14 @@ script.
 
         this.referenceImage = url;
       },
-      loadFeature(result) {
+      loadFeatures(result) {
         this.$vectorSource.clear();
 
-        result.features.forEach(feature => {
-          this.$vectorSource.addFeatures(featureFor(feature));
+        result.forEach(x => {
+          this.$vectorSource.addFeatures(featureFor(x));
         });
 
-        this.centerFeatures(result.features);
+        this.centerFeatures(result.map(x => x.data));
       },
       loadCluster() {
         this.$refs.appContainer.classList.add('blocked');
@@ -120,7 +117,14 @@ script.
         const featureIds = this.availableFeatures.map(f => f.geoserver_id).join(',');
 
         return getJSON(`/layers?user=${this.username}&features=${featureIds}`)
-          .then(x => this.loadFeature(x))
+          .then(x => {
+            this.loadFeatures(this.availableFeatures.map((f, i) => ({
+              data: x.features[i],
+              edited: f.edited,
+              first_call: f.first_call,
+              second_call: f.second_call,
+            })));
+          })
           .then(() => {
             this.$refs.appContainer.classList.remove('blocked');
           });
@@ -144,6 +148,24 @@ script.
           zoom: 16,
           minZoom: 5,
         }),
+      });
+
+      this.$mapSource.on('click', e => {
+        const pixel = this.$mapSource.getEventPixel(e.originalEvent);
+
+        this.$mapSource.forEachFeatureAtPixel(pixel, feature => {
+          if (this.selectedFeature && this.selectedFeature !== feature.getId()) {
+            //- feature.setStyle(DEFAULT_STYLES.on);
+            this.$vectorSource.getFeatures().forEach(x => {
+              if (x.getId() === this.selectedFeature) {
+                x.setStyle(DEFAULT_STYLES.off);
+              }
+            })
+          }
+
+          this.selectedFeature = feature.getId();
+          feature.setStyle(DEFAULT_STYLES.on);
+        });
       });
 
       // TODO: change this dinamically!

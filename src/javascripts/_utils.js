@@ -57,12 +57,26 @@ export const DEFAULT_STYLES = {
       color: 'rgba(0, 100, 120, 0.1)',
     }),
   }),
-};
-
-const STYLES = {
-  Polygon: DEFAULT_STYLES.on,
-  MultiPolygon: DEFAULT_STYLES.on,
-  GeometryCollection: DEFAULT_STYLES.on,
+  undef: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0, 100, 120, 0.05)',
+      lineDash: [4],
+      width: 1,
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0, 100, 120, 0.1)',
+    }),
+  }),
+  select: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0, 100, 120, 0.05)',
+      lineDash: [4],
+      width: 1,
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0, 100, 120, 0.1)',
+    }),
+  }),
 };
 
 export function latLng(coords, inverted) {
@@ -75,21 +89,21 @@ export function latLng(coords, inverted) {
 
 export function featureFor(location) {
   const _geometry = {
-    type: location.geometry.type,
+    type: location.data.geometry.type,
   };
 
   const _transform = coords => coords.map(_latLng => latLng(_latLng));
 
   if (_geometry.type === 'Polygon') {
-    _geometry.coordinates = location.geometry.coordinates.map(_transform);
+    _geometry.coordinates = location.data.geometry.coordinates.map(_transform);
   }
 
   if (_geometry.type === 'MultiPolygon') {
-    _geometry.coordinates = location.geometry.coordinates.map(x => x.map(_transform));
+    _geometry.coordinates = location.data.geometry.coordinates.map(x => x.map(_transform));
   }
 
   if (_geometry.type === 'GeometryCollection') {
-    _geometry.geometries = location.geometry.geometries
+    _geometry.geometries = location.data.geometry.geometries
       .map(geometry => ({
         type: geometry.type,
         coordinates: geometry.coordinates.map(_transform),
@@ -97,8 +111,16 @@ export function featureFor(location) {
   }
 
   return (new ol.format.GeoJSON()).readFeatures({
+    id: location.data.id,
     type: 'Feature',
     geometry: _geometry,
+    properties: {
+      isEdited: location.edited,
+      firstCall: location.first_call,
+      secondCall: location.second_call,
+      edoId: location.data.properties.edoid,
+      clusterId: location.data.properties.clusterid,
+    },
   });
 }
 
@@ -130,7 +152,17 @@ export function getJSON(url, opts) {
 }
 
 export function styleFor(feature) {
-  return STYLES[feature.getGeometry().getType()];
+  const props = feature.getProperties();
+
+  if (props.firstCall || props.secondCall) {
+    return DEFAULT_STYLES.undef;
+  }
+
+  if (props.edited) {
+    return DEFAULT_STYLES.off;
+  }
+
+  return DEFAULT_STYLES.on;
 }
 
 function calculateCentroid(coords) {
