@@ -67,9 +67,39 @@ function getClusters(conn) {
   });
 }
 
+function sendFeatures(conn) {
+  const featureId = conn.params.id.split('.').pop();
+  const apiCall = `http://localhost:8000/features/${featureId}/?format=json`;
+  const auth = `${conn.params.user}:${conn.params.user}`;
+
+  return new Promise((resolve, reject) => {
+    reqFast({
+      url: apiCall,
+      method: 'PATCH',
+      data: {
+        first_call: conn.params.first,
+        second_call: conn.params.second,
+      },
+      headers: {
+        Authorization: `Basic ${new Buffer(auth).toString('base64')}`,
+      },
+    }, (err, resp) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(resp.body);
+      }
+    });
+  })
+  .then(result => {
+    conn.resp_body = result;
+  });
+}
+
 app.mount(conn => {
   if (conn.request_path === '/layers') return getLayers(conn);
   if (conn.request_path === '/clusters') return getClusters(conn);
+  if (conn.request_path === '/save-features') return sendFeatures(conn);
 });
 
 app.listen(process.env.PORT || 8081).then(ctx => {

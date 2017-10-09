@@ -139,6 +139,17 @@ export function getJSON(url, opts) {
     .then(res => res.json());
 }
 
+// FIXME: support for JSON fields?
+export function postJSON(url, opts) {
+  opts = opts || {};
+  opts.method = 'POST';
+  opts.headers = opts.headers || {};
+  opts.headers['Accept'] = 'application/json';
+
+  return fetch(url, opts)
+    .then(res => res.json());
+}
+
 export function styleFor(feature) {
   const props = feature.getProperties();
 

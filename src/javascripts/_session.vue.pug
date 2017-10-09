@@ -95,6 +95,11 @@ script.
           }
         });
 
+        this.$emit('sendPayload', {
+          feature: this.currentFeature,
+          featureId: this.selectedFeature,
+        });
+
         this.feature = 0;
         this.selectedFeature = null;
         this.primaryValue = null;
@@ -142,8 +147,7 @@ script.
               first_call: f.first_call,
               second_call: f.second_call,
             })));
-          })
-          .then(() => {
+
             this.$refs.appContainer.classList.remove('blocked');
           });
       },
